@@ -1,29 +1,32 @@
+from functools import reduce
 from itertools import combinations
 from sys import argv
 from time import time
 
 
 def find_delivery(remaining, bigfirst, strat):
-    deliveries = []
-    score = 0
-    delivery = []
-    ingredients = set()
-    stratpos = 0
+    MAXTRIES = 10**1
 
-    for x, pizza in bigfirst:
-        if x in remaining:
-            delivery.append(x)
-            ingredients |= set(pizza)
-            
-            if len(delivery) == strat[stratpos]:
-                deliveries.append(delivery)
-                score += len(ingredients)**2
-                delivery = []
-                ingredients = set()
-                stratpos += 1
+    bestdeliveries = []
+    bestscore = 0
+    
+    for i, c in enumerate(combinations([bf for bf in bigfirst if bf[0] in remaining], sum(strat))):
+        if i == MAXTRIES:
+            break
 
-                if stratpos == len(strat):
-                    return deliveries, score
+        deliveries = []
+        score = 0
+
+        for s in strat:
+            delivery = c[sum([len(d) for d in deliveries]):sum([len(d) for d in deliveries])+s]
+            deliveries.append([d[0] for d in delivery])
+            score += len(reduce(lambda a,b: set(a)|set(b), [entry[1] for entry in delivery]))**2
+
+        if score > bestscore:
+            bestscore = score
+            bestdeliveries = deliveries
+
+    return bestdeliveries, bestscore
 
 
 def solve(m, t2, t3, t4, pizzas):
