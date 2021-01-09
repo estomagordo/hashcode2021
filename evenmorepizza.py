@@ -89,7 +89,7 @@ def main():
             deliveries = solve(m, t2, t3, t4, pizzas)
 
             with open(outputfile, 'w') as g:
-                g.write(int(len(deliveries)))
+                g.write(str(len(deliveries)))
                 
                 for delivery in deliveries:
                     g.write(' '.join(str(i) for i in delivery))
