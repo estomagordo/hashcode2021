@@ -1,18 +1,28 @@
+from itertools import combinations
 from sys import argv
 
 
-def find_delivery(remaining, bigfirst, n):
-    value = 0
+def find_delivery(remaining, bigfirst, strat):
+    deliveries = []
+    score = 0
     delivery = []
     ingredients = set()
+    stratpos = 0
 
     for x, pizza in bigfirst:
         if x in remaining:
             delivery.append(x)
             ingredients |= set(pizza)
             
-            if len(delivery) == n:
-                return delivery, len(ingredients)**2
+            if len(delivery) == strat[stratpos]:
+                deliveries.append(delivery)
+                score += len(ingredients)**2
+                delivery = []
+                ingredients = set()
+                stratpos += 1
+
+                if stratpos == len(strat):
+                    return deliveries, score
 
 
 def solve(m, t2, t3, t4, pizzas):
@@ -21,37 +31,49 @@ def solve(m, t2, t3, t4, pizzas):
     remaining = {x for x in range(m)}
     score = 0
 
-    while t4:
-        if len(remaining) < 4:
-            break
+    while True:
+        strat = [4] * min(2, t4) + [3] * min(2, t3) + [2] * min(2, t2)
 
-        delivery, value = find_delivery(remaining, bigfirst, 4)
-        score += value
-        remaining -= set(delivery)
-        deliveries.append([4] + delivery)
-        t4 -= 1
+        if len(strat) < 2:
+            if len(strat) == 1:
+                if sum(strat) <= len(remaining):
+                    delivery, value = find_delivery(remaining, bigfirst, strat)
+                    score += value
 
-    while t3:
-        if len(remaining) < 3:
-            break
+            return deliveries, score
 
-        delivery, value = find_delivery(remaining, bigfirst, 3)
-        score += value
-        remaining -= set(delivery)
-        deliveries.append([3] + delivery)
-        t3 -= 1
+        bestdeliveries = None
+        bestscore = 0
+        seen = set()
 
-    while t2:
-        if len(remaining) < 2:
-            break
+        for pair in combinations(strat, 2):
+            if pair in seen:
+                continue
 
-        delivery, value = find_delivery(remaining, bigfirst, 2)
-        score += value
-        remaining -= set(delivery)
-        deliveries.append([2] + delivery)
-        t2 -= 1
+            if sum(pair) <= len(remaining):
+                delivery, value = find_delivery(remaining, bigfirst, pair)
 
-    return deliveries, score
+                if value > bestscore:
+                    bestdeliveries = delivery
+                    bestscore = value
+
+                seen.add(pair)
+
+        if not bestscore:
+            return deliveries, score
+        
+        score += bestscore
+
+        for delivery in bestdeliveries:
+            remaining -= set(delivery)
+            deliveries.append([len(delivery)] + delivery)
+
+            if len(delivery) == 4:
+                t4 -= 1
+            elif len(delivery) == 3:
+                t3 -= 1
+            else:
+                t2 -= 1
 
 
 def main():
