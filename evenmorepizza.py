@@ -23,7 +23,7 @@ def solve(m, t2, t3, t4, pizzas):
 
         delivery = find_delivery(remaining, bigfirst, 4)
         remaining -= set(delivery)
-        deliveries.append(delivery)
+        deliveries.append([4] + delivery)
 
     while t3:
         if len(remaining) < 3:
@@ -31,7 +31,7 @@ def solve(m, t2, t3, t4, pizzas):
 
         delivery = find_delivery(remaining, bigfirst, 3)
         remaining -= set(delivery)
-        deliveries.append(delivery)
+        deliveries.append([3] + delivery)
 
     while t2:
         if len(remaining) < 2:
@@ -39,7 +39,7 @@ def solve(m, t2, t3, t4, pizzas):
 
         delivery = find_delivery(remaining, bigfirst, 2)
         remaining -= set(delivery)
-        deliveries.append(delivery)
+        deliveries.append([2] + delivery)
 
     return deliveries
 
@@ -89,7 +89,7 @@ def main():
             deliveries = solve(m, t2, t3, t4, pizzas)
 
             with open(outputfile, 'w') as g:
-                g.write(str(len(deliveries)))
+                g.write(str(len(deliveries)) + '\n')
                 
                 for delivery in deliveries:
                     g.write(' '.join(str(i) for i in delivery))
