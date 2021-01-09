@@ -2,46 +2,56 @@ from sys import argv
 
 
 def find_delivery(remaining, bigfirst, n):
+    value = 0
     delivery = []
+    ingredients = set()
 
-    for x, _ in bigfirst:
+    for x, pizza in bigfirst:
         if x in remaining:
             delivery.append(x)
+            ingredients |= set(pizza)
             
             if len(delivery) == n:
-                return delivery
+                return delivery, len(ingredients)**2
 
 
 def solve(m, t2, t3, t4, pizzas):
     deliveries = []
     bigfirst = sorted([(x, pizzas[x]) for x in range(m)], key=lambda pair: -len(pair[1]))
     remaining = {x for x in range(m)}
+    score = 0
 
     while t4:
         if len(remaining) < 4:
             break
 
-        delivery = find_delivery(remaining, bigfirst, 4)
+        delivery, value = find_delivery(remaining, bigfirst, 4)
+        score += value
         remaining -= set(delivery)
         deliveries.append([4] + delivery)
+        t4 -= 1
 
     while t3:
         if len(remaining) < 3:
             break
 
-        delivery = find_delivery(remaining, bigfirst, 3)
+        delivery, value = find_delivery(remaining, bigfirst, 3)
+        score += value
         remaining -= set(delivery)
         deliveries.append([3] + delivery)
+        t3 -= 1
 
     while t2:
         if len(remaining) < 2:
             break
 
-        delivery = find_delivery(remaining, bigfirst, 2)
+        delivery, value = find_delivery(remaining, bigfirst, 2)
+        score += value
         remaining -= set(delivery)
         deliveries.append([2] + delivery)
+        t2 -= 1
 
-    return deliveries
+    return deliveries, score
 
 
 def main():
@@ -84,9 +94,11 @@ def main():
 
             for _ in range(m):
                 pizza = f.readline().split()
-                pizzas.append((int(pizza[0]), pizza[1:]))
+                pizzas.append(pizza[1:])
 
-            deliveries = solve(m, t2, t3, t4, pizzas)
+            deliveries, score = solve(m, t2, t3, t4, pizzas)
+
+            print(f'Finished {file} with score {score}')
 
             with open(outputfile, 'w') as g:
                 g.write(str(len(deliveries)) + '\n')
