@@ -1,5 +1,6 @@
 from itertools import combinations
 from sys import argv
+from time import time
 
 
 def find_delivery(remaining, bigfirst, strat):
@@ -108,6 +109,7 @@ def main():
     print('\n'.join(to_run))
 
     for file in to_run:
+        t = time()
         outputfile = (file[:file.find('.')] if '.' in file else file) + '.out'
         
         with open(file) as f:
@@ -120,7 +122,7 @@ def main():
 
             deliveries, score = solve(m, t2, t3, t4, pizzas)
 
-            print(f'Finished {file} with score {score}')
+            print(f'Finished {file} with score {score} in {time()-t} seconds.')
 
             with open(outputfile, 'w') as g:
                 g.write(str(len(deliveries)) + '\n')
