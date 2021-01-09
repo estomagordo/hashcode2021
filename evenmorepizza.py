@@ -104,7 +104,7 @@ def main():
                 g.write(str(len(deliveries)) + '\n')
                 
                 for delivery in deliveries:
-                    g.write(' '.join(str(i) for i in delivery))
+                    g.write(' '.join(str(i) for i in delivery) + '\n')
 
 if __name__ == '__main__':
     main()
