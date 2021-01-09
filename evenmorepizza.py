@@ -5,7 +5,7 @@ from time import time
 
 
 def find_delivery(remaining, bigfirst, strat):
-    MAXTRIES = 10**1
+    MAXTRIES = 10**3
 
     bestdeliveries = []
     bestscore = 0
