@@ -41,6 +41,41 @@ def solve(m, t2, t3, t4, pizzas):
 
         if iters % 100 == 0:
             print(f'remaining: {len(remaining)} t4: {t4} t3: {t3} t2: {t2}')
+
+        if t4 > 25:
+            delivery, value = find_delivery(remaining, bigfirst, [4] * 20)
+            score += value
+
+            for d in delivery:
+                remaining -= set(d)
+                deliveries.append([len(d)] + d)
+
+            t4 -= 20
+
+            continue
+        elif t4 == 0 and t3 > 25:
+            delivery, value = find_delivery(remaining, bigfirst, [3] * 20)
+            score += value
+
+            for d in delivery:
+                remaining -= set(d)
+                deliveries.append([len(d)] + d)
+
+            t3 -= 20
+
+            continue
+        elif t4 == 0 and t3 == 0 and t2 > 25:
+            delivery, value = find_delivery(remaining, bigfirst, [2] * 20)
+            score += value
+
+            for d in delivery:
+                remaining -= set(d)
+                deliveries.append([len(d)] + d)
+
+            t2 -= 20
+
+            continue
+
         strat = [4] * min(2, t4) + [3] * min(2, t3) + [2] * min(2, t2)
 
         if len(strat) < 2:
