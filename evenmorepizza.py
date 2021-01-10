@@ -36,6 +36,33 @@ def solve(m, t2, t3, t4, pizzas):
     score = 0
     iters = 0
 
+    while t4 > 2 and len(remaining) > 11:
+        if t4 % 100 == 0:
+            print(t4, len(remaining))
+
+        delivery = []
+        ingredients = set()
+
+        while len(delivery) < 4:
+            best = [set(), -1]
+
+            for x, pizza in bigfirst:
+                if x not in remaining or x in delivery:
+                    continue
+
+                union = set(pizza) | ingredients
+
+                if len(union) > len(best[0]):
+                    best = [union, x]
+
+            ingredients = best[0]
+            delivery.append(best[1])
+
+        deliveries.append([4] + delivery)
+        remaining -= set(delivery)
+        t4 -= 1
+        score += len(ingredients)**2
+
     while True:
         iters += 1
 
