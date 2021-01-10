@@ -1,21 +1,30 @@
-from functools import lru_cache, reduce
+from functools import reduce
 from itertools import combinations
 from sys import argv
 from time import time
 
 
-@lru_cache(maxsize=None)
+def write_deliveries(outputfile, deliveries):
+    with open(outputfile, 'w') as g:
+        g.write(str(len(deliveries)) + '\n')
+        
+        for delivery in deliveries:
+            g.write(' '.join(str(i) for i in delivery) + '\n')
+
+
 def score_pizzas(pizzas, ids):
-    return len(reduce(lambda a,b: a|b, [pizzas[id] for id in ids]))**2
+    return len(reduce(lambda a,b: a|b, [pizzas[id] for id in ids[1:]]))**2
 
 
-def hillclimb(deliveries, pizzas, score):
+def hillclimb(outputfile, deliveries, pizzas, score):
+    write_deliveries(outputfile, deliveries)
+
     best = [deliveries, score]
 
     frontier = [[deliveries, score]]
 
     for deli, statescore in frontier:
-        origscores = {x: score_pizzas(pizzas, tuple(deli[x])) for x in range(len(deli))}
+        origscores = {x: score_pizzas(pizzas, deli[x]) for x in range(len(deli))}
 
         for x1, x2 in combinations(range(len(deli)), 2):
             d1 = deli[x1]
@@ -25,15 +34,17 @@ def hillclimb(deliveries, pizzas, score):
                 for b in d2[1:]:
                     dd1 = [d for d in d1 if d != a] + [b]
                     dd2 = [d for d in d2 if d != b] + [a]
-                    ds1 = score_pizzas(pizzas, tuple(dd1))
-                    ds2 = score_pizzas(pizzas, tuple(dd2))
+                    ds1 = score_pizzas(pizzas, dd1)
+                    ds2 = score_pizzas(pizzas, dd2)
                     dscore = statescore+ds1+ds2-origscores[x1]-origscores[x2]
 
                     if dscore > best[1]:
                         print(f'Hill climbed to {dscore} from {best[1]}')
+                        print(f'Frontier size: {len(frontier)}. Looking at x1/x2: {x1}/{x2} from a delivery size of: {len(deliveries)}')
                         ddeli = [d for d in deli[:x1]] + [dd1] + [d for d in deli[x1+1:x2]] + [dd2] + [d for d in deli[x2+1:]]
                         best = [ddeli, dscore]
                         frontier.append([ddeli, dscore])
+                        write_deliveries(outputfile, ddeli)
                         
     return best
 
@@ -63,7 +74,7 @@ def find_delivery(remaining, bigfirst, strat):
     return bestdeliveries, bestscore
 
 
-def solve(m, t2, t3, t4, pizzas):
+def solve(outputfile, m, t2, t3, t4, pizzas):
     deliveries = []
     bigfirst = sorted([(x, pizzas[x]) for x in range(m)], key=lambda pair: -len(pair[1]))
     remaining = {x for x in range(m)}
@@ -172,7 +183,7 @@ def solve(m, t2, t3, t4, pizzas):
                     delivery, value = find_delivery(remaining, bigfirst, strat)
                     score += value
 
-            return hillclimb(deliveries, pizzas, score)
+            return hillclimb(outputfile, deliveries, pizzas, score)
 
         bestdeliveries = None
         bestscore = 0
@@ -192,7 +203,7 @@ def solve(m, t2, t3, t4, pizzas):
                 seen.add(pair)
 
         if not bestscore:
-            return hillclimb(deliveries, pizzas, score)
+            return hillclimb(outputfile, deliveries, pizzas, score)
         
         score += bestscore
 
@@ -249,17 +260,12 @@ def main():
 
             for _ in range(m):
                 pizza = f.readline().split()
-                pizzas.append(frozenset(pizza[1:]))
+                pizzas.append(set(pizza[1:]))
 
-            deliveries, score = solve(m, t2, t3, t4, tuple(pizzas))
+            deliveries, score = solve(outputfile, m, t2, t3, t4, pizzas)
 
             print(f'Finished {file} with score {score} in {time()-t} seconds.')
-
-            with open(outputfile, 'w') as g:
-                g.write(str(len(deliveries)) + '\n')
-                
-                for delivery in deliveries:
-                    g.write(' '.join(str(i) for i in delivery) + '\n')
+            write_deliveries(outputfile, deliveries)
 
 if __name__ == '__main__':
     main()
