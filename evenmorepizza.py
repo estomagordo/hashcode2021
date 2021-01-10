@@ -1,9 +1,10 @@
-from functools import reduce
+from functools import lru_cache, reduce
 from itertools import combinations
 from sys import argv
 from time import time
 
 
+@lru_cache(maxsize=None)
 def score_pizzas(pizzas, ids):
     return len(reduce(lambda a,b: a|b, [pizzas[id] for id in ids]))**2
 
@@ -13,8 +14,8 @@ def hillclimb(deliveries, pizzas, score):
 
     frontier = [[deliveries, score]]
 
-    for deli, s in frontier:
-        origscores = {x: score_pizzas(pizzas, deli[x]) for x in range(len(deli))}
+    for deli, statescore in frontier:
+        origscores = {x: score_pizzas(pizzas, tuple(deli[x])) for x in range(len(deli))}
 
         for x1, x2 in combinations(range(len(deli)), 2):
             d1 = deli[x1]
@@ -24,19 +25,16 @@ def hillclimb(deliveries, pizzas, score):
                 for b in d2[1:]:
                     dd1 = [d for d in d1 if d != a] + [b]
                     dd2 = [d for d in d2 if d != b] + [a]
-                    ds1 = score_pizzas(pizzas, dd1)
-                    ds2 = score_pizzas(pizzas, dd2)
+                    ds1 = score_pizzas(pizzas, tuple(dd1))
+                    ds2 = score_pizzas(pizzas, tuple(dd2))
+                    dscore = statescore+ds1+ds2-origscores[x1]-origscores[x2]
 
-                    if ds1+ds2 > origscores[x1]+origscores[x2]:
+                    if dscore > best[1]:
+                        print(f'Hill climbed to {dscore} from {best[1]}')
                         ddeli = [d for d in deli[:x1]] + [dd1] + [d for d in deli[x1+1:x2]] + [dd2] + [d for d in deli[x2+1:]]
-                        dscore = s+ds1+ds2-origscores[x1]-origscores[x2]
-
-                        if dscore > best[1]:
-                            print(f'Hill climbed to {dscore} from {best[1]}')
-                            best = [ddeli, dscore]
-
-                            frontier.append([ddeli, dscore])
-
+                        best = [ddeli, dscore]
+                        frontier.append([ddeli, dscore])
+                        
     return best
 
 
@@ -251,9 +249,9 @@ def main():
 
             for _ in range(m):
                 pizza = f.readline().split()
-                pizzas.append(set(pizza[1:]))
+                pizzas.append(frozenset(pizza[1:]))
 
-            deliveries, score = solve(m, t2, t3, t4, pizzas)
+            deliveries, score = solve(m, t2, t3, t4, tuple(pizzas))
 
             print(f'Finished {file} with score {score} in {time()-t} seconds.')
 
