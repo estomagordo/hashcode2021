@@ -34,7 +34,7 @@ def find_delivery(remaining, bigfirst, strat):
         for s in strat:
             delivery = c[sum([len(d) for d in deliveries]):sum([len(d) for d in deliveries])+s]
             deliveries.append([d[0] for d in delivery])
-            score += len(reduce(lambda a,b: set(a)|set(b), [entry[1] for entry in delivery]))**2
+            score += len(reduce(lambda a,b: a|b, [entry[1] for entry in delivery]))**2
 
         if score > bestscore:
             bestscore = score
@@ -64,7 +64,7 @@ def solve(m, t2, t3, t4, pizzas):
                 if x not in remaining or x in delivery:
                     continue
 
-                union = set(pizza) | ingredients
+                union = pizza | ingredients
 
                 if len(union) > len(best[0]):
                     best = [union, x]
@@ -91,7 +91,7 @@ def solve(m, t2, t3, t4, pizzas):
                 if x not in remaining or x in delivery:
                     continue
 
-                union = set(pizza) | ingredients
+                union = pizza | ingredients
 
                 if len(union) > len(best[0]):
                     best = [union, x]
@@ -229,7 +229,7 @@ def main():
 
             for _ in range(m):
                 pizza = f.readline().split()
-                pizzas.append(pizza[1:])
+                pizzas.append(set(pizza[1:]))
 
             deliveries, score = solve(m, t2, t3, t4, pizzas)
 
