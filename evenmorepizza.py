@@ -4,6 +4,20 @@ from sys import argv
 from time import time
 
 
+# def score_pizzas(pizzas, ids):
+#     return len()
+
+
+# def hillclimb(deliveries, pizzas, score):
+#     best = [deliveries, score]
+
+#     frontier = [[deliveries, score]]
+
+#     for deli, s in frontier:
+#         for d1, d2 in combinations(deli, 2):
+#             s1 = 
+
+
 def find_delivery(remaining, bigfirst, strat):
     MAXTRIES = 10**4
 
