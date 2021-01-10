@@ -38,7 +38,7 @@ def solve(m, t2, t3, t4, pizzas):
 
     while t4 > 2 and len(remaining) > 11:
         if t4 % 100 == 0:
-            print(t4, len(remaining))
+            print(t4, t3, t2, len(remaining), score)
 
         delivery = []
         ingredients = set()
