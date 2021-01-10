@@ -4,18 +4,40 @@ from sys import argv
 from time import time
 
 
-# def score_pizzas(pizzas, ids):
-#     return len()
+def score_pizzas(pizzas, ids):
+    return len(reduce(lambda a,b: a|b, [pizzas[id] for id in ids]))**2
 
 
-# def hillclimb(deliveries, pizzas, score):
-#     best = [deliveries, score]
+def hillclimb(deliveries, pizzas, score):
+    best = [deliveries, score]
 
-#     frontier = [[deliveries, score]]
+    frontier = [[deliveries, score]]
 
-#     for deli, s in frontier:
-#         for d1, d2 in combinations(deli, 2):
-#             s1 = 
+    for deli, s in frontier:
+        origscores = {x: score_pizzas(pizzas, deli[x]) for x in range(len(deli))}
+
+        for x1, x2 in combinations(range(len(deli)), 2):
+            d1 = deli[x1]
+            d2 = deli[x2]
+
+            for a in d1[1:]:
+                for b in d2[1:]:
+                    dd1 = [d for d in d1 if d != a] + [b]
+                    dd2 = [d for d in d2 if d != b] + [a]
+                    ds1 = score_pizzas(pizzas, dd1)
+                    ds2 = score_pizzas(pizzas, dd2)
+
+                    if ds1+ds2 > origscores[x1]+origscores[x2]:
+                        ddeli = [d for d in deli[:x1]] + [dd1] + [d for d in deli[x1+1:x2]] + [dd2] + [d for d in deli[x2+1:]]
+                        dscore = s+ds1+ds2-origscores[x1]-origscores[x2]
+
+                        if dscore > best[1]:
+                            print(f'Hill climbed to {dscore} from {best[1]}')
+                            best = [ddeli, dscore]
+
+                            frontier.append([ddeli, dscore])
+
+    return best
 
 
 def find_delivery(remaining, bigfirst, strat):
@@ -152,7 +174,7 @@ def solve(m, t2, t3, t4, pizzas):
                     delivery, value = find_delivery(remaining, bigfirst, strat)
                     score += value
 
-            return deliveries, score
+            return hillclimb(deliveries, pizzas, score)
 
         bestdeliveries = None
         bestscore = 0
@@ -172,7 +194,7 @@ def solve(m, t2, t3, t4, pizzas):
                 seen.add(pair)
 
         if not bestscore:
-            return deliveries, score
+            return hillclimb(deliveries, pizzas, score)
         
         score += bestscore
 
