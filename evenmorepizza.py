@@ -5,7 +5,7 @@ from time import time
 
 
 def find_delivery(remaining, bigfirst, strat):
-    MAXTRIES = 10**3
+    MAXTRIES = 10**4
 
     bestdeliveries = []
     bestscore = 0
@@ -34,8 +34,13 @@ def solve(m, t2, t3, t4, pizzas):
     bigfirst = sorted([(x, pizzas[x]) for x in range(m)], key=lambda pair: -len(pair[1]))
     remaining = {x for x in range(m)}
     score = 0
+    iters = 0
 
     while True:
+        iters += 1
+
+        if iters % 100 == 0:
+            print(f'remaining: {len(remaining)} t4: {t4} t3: {t3} t2: {t2}')
         strat = [4] * min(2, t4) + [3] * min(2, t3) + [2] * min(2, t2)
 
         if len(strat) < 2:
