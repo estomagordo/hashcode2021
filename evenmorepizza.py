@@ -25,10 +25,17 @@ def hillclimb(outputfile, deliveries, pizzas, score):
 
     for deli, statescore in frontier:
         origscores = {x: score_pizzas(pizzas, deli[x]) for x in range(len(deli))}
+        changes = []
+        changed = set()
 
         for x1, x2 in combinations(range(len(deli)), 2):
+            if x1 in changed or x2 in changed:
+                continue
+
             d1 = deli[x1]
             d2 = deli[x2]
+
+            best_improv = [0, -1, -1, -1, -1]
 
             for a in d1[1:]:
                 for b in d2[1:]:
@@ -36,15 +43,29 @@ def hillclimb(outputfile, deliveries, pizzas, score):
                     dd2 = [d for d in d2 if d != b] + [a]
                     ds1 = score_pizzas(pizzas, dd1)
                     ds2 = score_pizzas(pizzas, dd2)
-                    dscore = statescore+ds1+ds2-origscores[x1]-origscores[x2]
+                    # dscore = statescore+ds1+ds2-origscores[x1]-origscores[x2]
+                    impscore = ds1+ds2-origscores[x1]-origscores[x2]
+                    
+                    if impscore > best_improv[0]:
+                        best_improv = [impscore, x1, x2, a, b]
 
-                    if dscore > best[1]:
-                        print(f'Hill climbed to {dscore} from {best[1]}')
-                        print(f'Frontier size: {len(frontier)}. Looking at x1/x2: {x1}/{x2} from a delivery size of: {len(deliveries)}')
-                        ddeli = [d for d in deli[:x1]] + [dd1] + [d for d in deli[x1+1:x2]] + [dd2] + [d for d in deli[x2+1:]]
-                        best = [ddeli, dscore]
-                        frontier.append([ddeli, dscore])
-                        write_deliveries(outputfile, ddeli)
+            if best_improv[0] > 1:
+                changes.append(best_improv[1:])
+                changed.add(best_improv[1])
+                changed.add(best_improv[2])
+
+        if changes:
+            for x1, x2, a, b in changes:                
+                deli[x1] = [deli[x1][0]] + [d for d in deli[x1][1:] if d != a] + [b]
+                deli[x2] = [deli[x2][0]] + [d for d in deli[x2][1:] if d != b] + [a]        
+                dscore = sum(score_pizzas(pizzas, delivery) for delivery in deli)
+
+                if dscore > best[1]:
+                    print(f'Hill climbed to {dscore} from {best[1]}')
+                    print(f'Frontier size: {len(frontier)}. Made {len(changes)} changes, from a delivery size of: {len(deliveries)}')                    
+                    best = [deli, dscore]
+                    frontier.append([deli, dscore])
+                    write_deliveries(outputfile, deli)
                         
     return best
 
