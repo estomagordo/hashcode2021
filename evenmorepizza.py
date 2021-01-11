@@ -128,6 +128,7 @@ def solve(outputfile, m, t2, t3, t4, pizzas):
         remaining -= set(delivery)
         t4 -= 1
         score += len(ingredients)**2
+        bigfirst = [bf for bf in bigfirst if bf[0] in remaining]
 
     while t3 > 2 and len(remaining) > 8:
         if t3 % 100 < 3:
