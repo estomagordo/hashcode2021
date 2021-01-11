@@ -20,8 +20,8 @@ def hillclimb(outputfile, deliveries, pizzas, score):
     write_deliveries(outputfile, deliveries)
 
     best = [deliveries, score]
-
     frontier = [[deliveries, score]]
+    iters = [0]
 
     for deli, statescore in frontier:
         origscores = {x: score_pizzas(pizzas, deli[x]) for x in range(len(deli))}
@@ -29,6 +29,8 @@ def hillclimb(outputfile, deliveries, pizzas, score):
         changed = set()
 
         for x1, x2 in combinations(range(len(deli)), 2):
+            iters[0] += 1
+
             if x1 in changed or x2 in changed:
                 continue
 
@@ -62,7 +64,7 @@ def hillclimb(outputfile, deliveries, pizzas, score):
 
                 if dscore > best[1]:
                     print(f'Hill climbed to {dscore} from {best[1]}')
-                    print(f'Frontier size: {len(frontier)}. Made {len(changes)} changes, from a delivery size of: {len(deliveries)}')                    
+                    print(f'Frontier size: {len(frontier)}. Made {len(changes)} changes, from a delivery size of: {len(deliveries)} after {iters[0]} inner iterations.')                    
                     best = [deli, dscore]
                     frontier.append([deli, dscore])
                     write_deliveries(outputfile, deli)
